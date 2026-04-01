@@ -1,0 +1,84 @@
+import { AlertTriangle, ShieldAlert, Info, CheckCircle } from 'lucide-react';
+import useDashboardData from '../hooks/useDashboardData';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import AlertCard from '../components/cards/AlertCard';
+
+export default function Alerts() {
+  const { data, loading } = useDashboardData();
+
+  if (loading || !data) return <LoadingSpinner />;
+
+  const alerts = data.alerts || [];
+  const risk = data.current_status?.risk || {};
+  const env = data.current_status?.environment || {};
+
+  const temp = env.temperature_c ?? 0;
+  const nh3 = env.nh3_ppm ?? 0;
+  const co2Val = env.co2_ppm ?? 0;
+  const stressLevel = risk.heat_stress_level ?? 0;
+
+  // Build system-derived alerts from current conditions
+  const systemAlerts = [];
+  if (temp > 32) {
+    systemAlerts.push({ severity: 'CRITICAL', color: 'red', message: `🔴 Temperature ${temp.toFixed(1)}°C is critically high!`, actions: ['Activate emergency cooling', 'Max fan speed + misting'] });
+  } else if (temp > 28) {
+    systemAlerts.push({ severity: 'WARNING', color: 'orange', message: `🟠 Temperature ${temp.toFixed(1)}°C above comfort zone`, actions: ['Increase ventilation', 'Monitor birds'] });
+  }
+  if (nh3 > 25) {
+    systemAlerts.push({ severity: 'WARNING', color: 'orange', message: `🟠 Ammonia ${nh3.toFixed(1)} ppm exceeds 25 ppm limit`, actions: ['Increase ventilation', 'Schedule litter change'] });
+  }
+  if (co2Val > 2000) {
+    systemAlerts.push({ severity: 'WARNING', color: 'orange', message: `🟠 CO₂ ${co2Val.toFixed(0)} ppm is elevated`, actions: ['Increase fresh air intake'] });
+  }
+  if (stressLevel >= 2) {
+    systemAlerts.push({ severity: 'CRITICAL', color: 'red', message: `🔴 Heat stress level: ${risk.heat_stress_label || 'Elevated'}`, actions: ['Activate cooling systems', 'Reduce feed 10-15%', 'Increase water'] });
+  }
+
+  const allAlerts = [...alerts, ...systemAlerts];
+  const criticalCount = allAlerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'Moderate').length;
+  const warningCount = allAlerts.filter(a => a.severity === 'WARNING').length;
+  const infoCount = allAlerts.filter(a => a.severity === 'INFO').length;
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">🚨 Alert Center</h1>
+        <p className="text-sm text-slate-400 mt-1">Active warnings and system notifications</p>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="glass-card p-4 text-center animate-slide-up">
+          <ShieldAlert size={24} className="text-red-400 mx-auto mb-2" />
+          <p className="text-2xl font-bold text-red-400">{criticalCount}</p>
+          <p className="text-xs text-slate-400">Critical</p>
+        </div>
+        <div className="glass-card p-4 text-center animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <AlertTriangle size={24} className="text-orange-400 mx-auto mb-2" />
+          <p className="text-2xl font-bold text-orange-400">{warningCount}</p>
+          <p className="text-xs text-slate-400">Warnings</p>
+        </div>
+        <div className="glass-card p-4 text-center animate-slide-up" style={{ animationDelay: '200ms' }}>
+          <Info size={24} className="text-blue-400 mx-auto mb-2" />
+          <p className="text-2xl font-bold text-blue-400">{infoCount}</p>
+          <p className="text-xs text-slate-400">Info</p>
+        </div>
+      </div>
+
+      {/* Alert list */}
+      {allAlerts.length === 0 ? (
+        <div className="glass-card p-10 text-center animate-slide-up">
+          <CheckCircle size={48} className="text-emerald-400 mx-auto mb-4" />
+          <p className="text-lg font-semibold text-white">All Clear!</p>
+          <p className="text-sm text-slate-400 mt-1">No active alerts. Farm is operating normally.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {allAlerts.map((a, i) => (
+            <AlertCard key={i} alert={a} index={i} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

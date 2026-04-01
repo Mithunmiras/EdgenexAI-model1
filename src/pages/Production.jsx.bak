@@ -1,0 +1,175 @@
+import { Egg, DollarSign, TrendingUp, BarChart3 } from 'lucide-react';
+import { useMemo } from 'react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, BarChart, Bar, Cell } from 'recharts';
+import useDashboardData from '../hooks/useDashboardData';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import StatCard from '../components/cards/StatCard';
+import { formatCurrency, formatNumber, formatPercent } from '../utils/formatters';
+import { COLORS } from '../utils/constants';
+
+export default function Production() {
+  const { data, loading } = useDashboardData();
+
+  if (loading || !data) return <LoadingSpinner />;
+
+  const pred = data.predictions || {};
+  const profit = data.profitability || {};
+  const sop = data.generated_sop || {};
+  const farm = data.farm || {};
+  const revenue = profit.revenue || {};
+  const costs = profit.costs || {};
+  const aiValue = profit.ai_value || {};
+
+  const predictedEggs = Math.round(pred.predicted_eggs_today || 0);
+  const layingRate = farm.flock_size ? (predictedEggs / farm.flock_size * 100).toFixed(1) : '0.0';
+
+  // Revenue/cost breakdown
+  const revenueData = useMemo(() => [
+    { name: 'Revenue', value: revenue.total_revenue || 0, color: '#10B981' },
+    { name: 'Feed Cost', value: costs.total_feed_cost || 0, color: '#EF4444' },
+    { name: 'AI Savings', value: aiValue.total_ai_savings || 0, color: '#06B6D4' },
+  ], [revenue, costs, aiValue]);
+
+  // Pricing tiers
+  const tiers = profit.pricing_model || {};
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">🥚 Production Analytics</h1>
+        <p className="text-sm text-slate-400 mt-1">Egg production performance over {profit.period}</p>
+      </div>
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon={Egg} label="Predicted Today" value={predictedEggs.toLocaleString()} color="emerald" trendLabel={`${layingRate}% rate`} trend={1} delay={0} />
+        <StatCard icon={BarChart3} label="Total Eggs (Period)" value={(revenue.total_eggs || 0).toLocaleString()} color="blue" trendLabel={profit.period || '90 days'} delay={100} />
+        <StatCard icon={DollarSign} label="Total Revenue" value={formatCurrency(revenue.total_revenue)} color="cyan" trendLabel={formatCurrency((revenue.total_revenue || 0) / 90) + '/day'} delay={200} />
+        <StatCard icon={TrendingUp} label="AI Savings" value={formatCurrency(aiValue.total_ai_savings)} color="emerald" trendLabel={formatCurrency(aiValue.monthly_ai_value) + '/mo'} delay={300} />
+      </div>
+
+      {/* Expected Outcomes from SOP */}
+      {sop?.expected_outcomes && (
+        <div className="glass-card p-5 animate-slide-up">
+          <h3 className="text-sm font-semibold text-white mb-4">📊 Today's Expected Outcomes</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-white/5 rounded-xl">
+              <p className="text-xs text-slate-400 mb-1">Expected Eggs</p>
+              <p className="text-2xl font-bold text-emerald-400">{sop.expected_outcomes.expected_eggs?.toLocaleString()}</p>
+            </div>
+            <div className="text-center p-4 bg-white/5 rounded-xl">
+              <p className="text-xs text-slate-400 mb-1">Laying Rate</p>
+              <p className="text-2xl font-bold text-blue-400">{sop.expected_outcomes.laying_rate_pct}%</p>
+            </div>
+            <div className="text-center p-4 bg-white/5 rounded-xl">
+              <p className="text-xs text-slate-400 mb-1">Expected FCR</p>
+              <p className="text-2xl font-bold text-white">{sop.expected_outcomes.expected_fcr}</p>
+            </div>
+            <div className="text-center p-4 bg-white/5 rounded-xl">
+              <p className="text-xs text-slate-400 mb-1">Mortality Risk</p>
+              <p className={`text-2xl font-bold ${sop.expected_outcomes.mortality_risk === 'LOW' ? 'text-emerald-400' : 'text-red-400'}`}>{sop.expected_outcomes.mortality_risk}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Daily Value Breakdown */}
+      {sop?.estimated_daily_value && (
+        <div className="glass-card p-5 animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <h3 className="text-sm font-semibold text-white mb-4">💰 Daily Value Breakdown</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-white/5 rounded-xl">
+              <p className="text-xs text-slate-400 mb-1">Revenue</p>
+              <p className="text-xl font-bold text-emerald-400">{formatCurrency(sop.estimated_daily_value.revenue_usd)}</p>
+            </div>
+            <div className="text-center p-4 bg-white/5 rounded-xl">
+              <p className="text-xs text-slate-400 mb-1">Feed Cost</p>
+              <p className="text-xl font-bold text-red-400">{formatCurrency(sop.estimated_daily_value.feed_cost_usd)}</p>
+            </div>
+            <div className="text-center p-4 bg-white/5 rounded-xl">
+              <p className="text-xs text-slate-400 mb-1">AI Savings</p>
+              <p className="text-xl font-bold text-cyan-400">{formatCurrency(sop.estimated_daily_value.ai_savings_usd)}</p>
+            </div>
+            <div className="text-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+              <p className="text-xs text-slate-400 mb-1">Net Profit</p>
+              <p className="text-xl font-bold text-emerald-400">{formatCurrency(sop.estimated_daily_value.net_profit_usd)}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revenue Chart */}
+      <div className="glass-card p-5 animate-slide-up" style={{ animationDelay: '200ms' }}>
+        <h3 className="text-sm font-semibold text-white mb-4">📊 {profit.period || '90 days'} Financial Overview</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={revenueData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <XAxis dataKey="name" tick={{ fill: '#94A3B8', fontSize: 12 }} stroke="#334155" />
+            <YAxis tick={{ fill: '#94A3B8', fontSize: 10 }} stroke="#334155" tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} />
+            <Tooltip content={({ active, payload }) => {
+              if (!active || !payload?.length) return null;
+              return (
+                <div className="bg-slate-800 border border-slate-600 rounded-xl p-3 shadow-xl text-xs">
+                  <p className="text-white font-bold">{payload[0]?.payload?.name}</p>
+                  <p style={{ color: payload[0]?.payload?.color }}>{formatCurrency(payload[0]?.value)}</p>
+                </div>
+              );
+            }} />
+            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+              {revenueData.map((entry, i) => (
+                <Cell key={i} fill={entry.color} fillOpacity={0.8} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* AI Value Proposition */}
+      <div className="glass-card p-5 animate-slide-up" style={{ animationDelay: '300ms' }}>
+        <h3 className="text-sm font-semibold text-white mb-4">🤖 AI Value Analysis</h3>
+        <p className="text-sm text-emerald-400 font-semibold mb-4">{tiers?.value_proposition}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {tiers?.tier_basic && (
+            <div className="p-4 bg-white/5 rounded-xl border border-slate-700/50">
+              <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Basic</p>
+              <p className="text-2xl font-bold text-white mb-3">${tiers.tier_basic.price}<span className="text-sm text-slate-400">/mo</span></p>
+              <ul className="space-y-1.5">
+                {tiers.tier_basic.features.map((f, i) => (
+                  <li key={i} className="text-xs text-slate-300 flex items-center gap-1.5">
+                    <span className="text-emerald-400">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {tiers?.tier_pro && (
+            <div className="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/30">
+              <p className="text-xs text-emerald-400 uppercase tracking-wider mb-2">Pro (Recommended)</p>
+              <p className="text-2xl font-bold text-white mb-3">${tiers.tier_pro.price}<span className="text-sm text-slate-400">/mo</span></p>
+              <ul className="space-y-1.5">
+                {tiers.tier_pro.features.map((f, i) => (
+                  <li key={i} className="text-xs text-slate-300 flex items-center gap-1.5">
+                    <span className="text-emerald-400">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {tiers?.tier_enterprise && (
+            <div className="p-4 bg-white/5 rounded-xl border border-slate-700/50">
+              <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Enterprise</p>
+              <p className="text-2xl font-bold text-white mb-3">${tiers.tier_enterprise.price}<span className="text-sm text-slate-400">/mo</span></p>
+              <ul className="space-y-1.5">
+                {tiers.tier_enterprise.features.map((f, i) => (
+                  <li key={i} className="text-xs text-slate-300 flex items-center gap-1.5">
+                    <span className="text-emerald-400">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

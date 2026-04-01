@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+  .glass-card {
+    @apply bg-slate-800/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-xl;
+  }
+}
+
+/* ===== Animated background gradient ===== */
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(16, 185, 129, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(6, 182, 212, 0.05), transparent),
+    radial-gradient(ellipse 50% 50% at 50% 100%, rgba(139, 92, 246, 0.04), transparent);
+  animation: bgShift 20s ease-in-out infinite alternate;
+}
+
+@keyframes bgShift {
+  0% {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 40%, rgba(16, 185, 129, 0.06), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 60%, rgba(6, 182, 212, 0.05), transparent),
+      radial-gradient(ellipse 50% 50% at 50% 100%, rgba(139, 92, 246, 0.04), transparent);
+  }
+  50% {
+    background:
+      radial-gradient(ellipse 70% 60% at 60% 30%, rgba(6, 182, 212, 0.07), transparent),
+      radial-gradient(ellipse 80% 50% at 30% 70%, rgba(16, 185, 129, 0.05), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.05), transparent);
+  }
+  100% {
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 50%, rgba(139, 92, 246, 0.06), transparent),
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(6, 182, 212, 0.06), transparent),
+      radial-gradient(ellipse 50% 40% at 50% 20%, rgba(16, 185, 129, 0.04), transparent);
+  }
+}
+
+/* ===== Floating particle dots ===== */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.3);
+  pointer-events: none;
+  animation: float linear infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ===== Gradient border trick ===== */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ===== Shimmer loading ===== */
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ===== Glow pulse for optimal states ===== */
+.glow-emerald {
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15), 0 0 45px rgba(16, 185, 129, 0.05);
+}
+.glow-emerald-animate {
+  animation: glowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.1), 0 0 30px rgba(16, 185, 129, 0.03); }
+  100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25), 0 0 60px rgba(16, 185, 129, 0.08); }
+}
+
+/* ===== Number counter smooth fonts ===== */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Animated gradient text ===== */
+.gradient-text-animated {
+  background: linear-gradient(90deg, #10B981, #06B6D4, #8B5CF6, #10B981);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientText 6s linear infinite;
+}
+
+@keyframes gradientText {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}

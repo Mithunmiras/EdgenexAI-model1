@@ -1,0 +1,130 @@
+{
+  "sop_date": "2026-04-01",
+  "generated_at": "2026-04-01T07:55:07.864048",
+  "generated_by": "gemini",
+  "overall_risk_level": "Mild",
+  "executive_summary": "Today: mild heat stress (THI=69.2). Feed: 115g/bird. Expected: 4650 eggs ($558).",
+  "priority_actions": [
+    {
+      "priority": 1,
+      "action": "Set feed: 115g/bird (575kg total)",
+      "reason": "Normal: standard schedule",
+      "deadline": "Before 06:00",
+      "estimated_value_usd": 12.94
+    },
+    {
+      "priority": 2,
+      "action": "Water supply: 200ml/bird/day",
+      "reason": "Water:feed ratio = 1.7:1",
+      "deadline": "Check every 2h",
+      "estimated_value_usd": 0
+    }
+  ],
+  "feeding_plan": {
+    "total_feed_kg": 575.0,
+    "feed_per_bird_g": 115,
+    "schedule": [
+      {
+        "time": "06:00",
+        "amount_kg": 172.5,
+        "notes": "Largest portion"
+      },
+      {
+        "time": "10:00",
+        "amount_kg": 143.8,
+        "notes": "Second portion"
+      },
+      {
+        "time": "14:00",
+        "amount_kg": 115.0,
+        "notes": "Reduced if hot"
+      },
+      {
+        "time": "18:00",
+        "amount_kg": 143.8,
+        "notes": "Evening portion"
+      }
+    ],
+    "adjustments": "Normal: standard schedule"
+  },
+  "ventilation_plan": {
+    "fan_speed_pct": 30,
+    "cooling_pad_active": false,
+    "schedule": [
+      {
+        "time_range": "00:00-06:00",
+        "fan_speed": 30
+      },
+      {
+        "time_range": "06:00-10:00",
+        "fan_speed": 30
+      },
+      {
+        "time_range": "10:00-16:00",
+        "fan_speed": 40
+      },
+      {
+        "time_range": "16:00-20:00",
+        "fan_speed": 30
+      },
+      {
+        "time_range": "20:00-00:00",
+        "fan_speed": 30
+      }
+    ]
+  },
+  "water_plan": {
+    "target_ml_per_bird": 200,
+    "total_liters": 1000.0,
+    "additives": "Standard"
+  },
+  "monitoring_schedule": [
+    {
+      "time": "05:00",
+      "check": "Temp & humidity",
+      "threshold": "Alert if >32\u00b0C"
+    },
+    {
+      "time": "06:00",
+      "check": "Feeders & water",
+      "threshold": "All operational"
+    },
+    {
+      "time": "08:00",
+      "check": "First egg collection",
+      "threshold": ">1395 eggs"
+    },
+    {
+      "time": "10:00",
+      "check": "Bird behavior",
+      "threshold": ">5% panting = alert"
+    },
+    {
+      "time": "12:00",
+      "check": "Peak temperature",
+      "threshold": "THI>80 = emergency cool"
+    },
+    {
+      "time": "14:00",
+      "check": "Second egg collection",
+      "threshold": "Cumulative >3255"
+    },
+    {
+      "time": "18:00",
+      "check": "Final collection + mortality",
+      "threshold": "Mortality >0.05% = alert"
+    }
+  ],
+  "expected_outcomes": {
+    "expected_eggs": 4650,
+    "laying_rate_pct": 93.0,
+    "expected_fcr": 2.06,
+    "mortality_risk": "LOW"
+  },
+  "estimated_daily_value": {
+    "revenue_usd": 558.0,
+    "feed_cost_usd": 258.75,
+    "ai_savings_usd": 12.94,
+    "net_profit_usd": 221.62
+  }
+}

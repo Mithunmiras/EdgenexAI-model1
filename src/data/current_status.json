@@ -1,0 +1,30 @@
+{
+  "timestamp": "2024-08-29 23:45:00",
+  "sensors": {
+    "temperature_C": null,
+    "humidity_pct": null,
+    "feed_weight_kg": 433.28216507421325,
+    "water_liters": 3.5373156647054502,
+    "nh3_ppm": 6.8182021487328175,
+    "co2_ppm": null,
+    "light_lux": 0.1860676678552449,
+    "bird_weight_kg": null
+  },
+  "derived": {
+    "thi": 69.24737510517915,
+    "feed_consumption_rate": 1.9219876699126672
+  },
+  "risk": {
+    "heat_stress_level": 1,
+    "heat_stress_label": "Mild",
+    "risk_probabilities": {
+      "normal": 0.7784675998128274,
+      "mild": 0.21560680342742158,
+      "moderate": 0.005925596759750828,
+      "severe": 0
+    }
+  },
+  "optimal_feed": {
+    "predicted_consumption_kg": 1.8009905464510811
+  }
+}

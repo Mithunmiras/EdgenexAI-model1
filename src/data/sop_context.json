@@ -1,0 +1,26 @@
+{
+  "farm_profile": {
+    "location": "NCHU Taiwan",
+    "flock_size": 5000,
+    "bird_age_weeks": 32.714285714285715
+  },
+  "current_conditions": {
+    "temperature_C": 21.05161277239015,
+    "humidity_pct": 82.46150454609082,
+    "thi_index": 69.24737510517915,
+    "nh3_ppm": 6.8182021487328175,
+    "co2_ppm": 1354.084387389615
+  },
+  "last_24h_summary": {
+    "temp_min": 20.492590450050866,
+    "temp_max": 28.5338239106447,
+    "thi_max": 78.85114184048115,
+    "max_risk_level": 1
+  },
+  "ai_predictions": {
+    "heat_stress_risk": 1,
+    "heat_stress_label": "Mild",
+    "optimal_feed_rate": 1.8009905464510811,
+    "predicted_eggs_today": 4796.7380414406325
+  }
+}
