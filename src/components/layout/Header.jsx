@@ -31,7 +31,7 @@ export default function Header({ alertCount = 0, darkMode, toggleDarkMode }) {
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center font-bold text-slate-900 text-xs lg:hidden">
               EN
             </div>
-            <span className="text-sm text-slate-400">Farm: <span className="text-white font-semibold">NCHU Research</span></span>
+            <span className="text-sm text-slate-400">Farm: <span className="text-white font-semibold">Farm A</span></span>
           </div>
         </div>
 

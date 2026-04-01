@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Utensils, FileText, Thermometer,
-  BarChart3, AlertTriangle, Settings, ChevronLeft, ChevronRight,
+  BarChart3, AlertTriangle, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,7 +12,6 @@ const links = [
   { to: '/environment', icon: Thermometer, label: 'Environment' },
   { to: '/production', icon: BarChart3, label: 'Production' },
   { to: '/alerts', icon: AlertTriangle, label: 'Alerts' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function Sidebar() {

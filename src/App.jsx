@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Component } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import Dashboard from './pages/Dashboard';
@@ -8,8 +8,24 @@ import SOPPage from './pages/SOPPage';
 import Environment from './pages/Environment';
 import Production from './pages/Production';
 import Alerts from './pages/Alerts';
-import Settings from './pages/Settings';
 import useDashboardData from './hooks/useDashboardData';
+
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 text-center">
+          <h2 className="text-xl font-bold text-red-400 mb-2">Something went wrong</h2>
+          <p className="text-slate-400 text-sm mb-4">{this.state.error?.message || 'Unknown error'}</p>
+          <button onClick={() => this.setState({ hasError: false, error: null })} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500">Try Again</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -31,15 +47,16 @@ export default function App() {
           toggleDarkMode={() => setDarkMode(d => !d)}
         />
         <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/feeding" element={<Feeding />} />
-            <Route path="/sop" element={<SOPPage />} />
-            <Route path="/environment" element={<Environment />} />
-            <Route path="/production" element={<Production />} />
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/feeding" element={<Feeding />} />
+              <Route path="/sop" element={<SOPPage />} />
+              <Route path="/environment" element={<Environment />} />
+              <Route path="/production" element={<Production />} />
+              <Route path="/alerts" element={<Alerts />} />
+            </Routes>
+          </ErrorBoundary>
         </main>
       </div>
     </div>
