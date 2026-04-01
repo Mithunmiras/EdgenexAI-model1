@@ -6,6 +6,7 @@ import AlertCard from '../components/cards/AlertCard';
 import TimeSeriesChart from '../components/charts/TimeSeriesChart';
 import THIMeter from '../components/charts/THIMeter';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import GeminiInsights from '../components/common/GeminiInsights';
 import { formatNumber, formatPercent, formatCurrency } from '../utils/formatters';
 
 export default function Dashboard() {
@@ -51,9 +52,12 @@ export default function Dashboard() {
         <StatCard icon={Egg} label="Predicted Eggs" value={predictedEggs.toLocaleString()}
           trendLabel={`${((predictedEggs / (data.farm?.flock_size || 5000)) * 100).toFixed(1)}% rate`} trend={1} color="emerald" delay={200} />
         <StatCard icon={DollarSign} label="Daily Profit" value={formatCurrency(dailyProfit)}
-          trendLabel={`Revenue: ${formatCurrency(sop.estimated_daily_value?.revenue_usd)}`}
+          trendLabel={`Revenue: ${formatCurrency(sop.estimated_daily_value?.egg_revenue_usd ?? sop.estimated_daily_value?.revenue_usd)}`}
           trend={dailyProfit > 0 ? 1 : -1} color="cyan" delay={300} />
       </div>
+
+      {/* Gemini AI Insights */}
+      <GeminiInsights page="dashboard" data={data} />
 
       {/* Farm Status Banner */}
       <div className={`relative overflow-hidden rounded-2xl border p-6 transition-all duration-500 animate-slide-up ${
@@ -100,25 +104,25 @@ export default function Dashboard() {
 
       {/* Profitability */}
       <div className="glass-card p-5 animate-slide-up">
-        <h3 className="text-sm font-semibold text-white mb-4">💰 {profit.period || '90 days'} Profitability Summary</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">💰 {profit.summary?.period_days || 90} days Profitability Summary</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="text-center p-3 bg-white/5 rounded-xl">
             <p className="text-xs text-slate-400 mb-1">Total Revenue</p>
-            <p className="text-xl font-bold text-emerald-400">{formatCurrency((profit.revenue || {}).total_revenue)}</p>
-            <p className="text-xs text-slate-500">{((profit.revenue || {}).total_eggs || 0).toLocaleString()} eggs</p>
+            <p className="text-xl font-bold text-emerald-400">{formatCurrency(profit.summary?.total_revenue)}</p>
+            <p className="text-xs text-slate-500">{(data.production?.total_eggs || 0).toLocaleString()} eggs</p>
           </div>
           <div className="text-center p-3 bg-white/5 rounded-xl">
             <p className="text-xs text-slate-400 mb-1">Feed Cost</p>
-            <p className="text-xl font-bold text-red-400">{formatCurrency((profit.costs || {}).total_feed_cost)}</p>
+            <p className="text-xl font-bold text-red-400">{formatCurrency(profit.summary?.total_feed_cost)}</p>
           </div>
           <div className="text-center p-3 bg-white/5 rounded-xl">
-            <p className="text-xs text-slate-400 mb-1">AI Savings</p>
-            <p className="text-xl font-bold text-cyan-400">{formatCurrency((profit.ai_value || {}).total_ai_savings)}</p>
-            <p className="text-xs text-slate-500">{formatCurrency((profit.ai_value || {}).monthly_ai_value)}/mo</p>
+            <p className="text-xs text-slate-400 mb-1">ROI</p>
+            <p className="text-xl font-bold text-cyan-400">{profit.summary?.roi_percentage ?? 0}%</p>
+            <p className="text-xs text-slate-500">Return on Investment</p>
           </div>
           <div className="text-center p-3 bg-white/5 rounded-xl">
             <p className="text-xs text-slate-400 mb-1">Net Profit</p>
-            <p className="text-xl font-bold text-white">{formatCurrency(((profit.revenue || {}).total_revenue || 0) - ((profit.costs || {}).total_feed_cost || 0))}</p>
+            <p className="text-xl font-bold text-white">{formatCurrency(profit.summary?.total_profit)}</p>
           </div>
         </div>
       </div>

@@ -3,22 +3,22 @@
   "flock_size": 5000,
   "revenue": {
     "total_eggs": 384732.0,
-    "total_revenue": 46167.84
+    "total_revenue": 1477371
   },
   "costs": {
-    "total_feed_cost": 23287.5
+    "total_feed_cost": 745200
   },
   "ai_value": {
-    "feed_savings": 1164.375,
-    "mortality_prevention": 5325,
-    "total_ai_savings": 6489.375,
-    "monthly_ai_value": 2163.125
+    "feed_savings": 37260,
+    "mortality_prevention": 170400,
+    "total_ai_savings": 207660,
+    "monthly_ai_value": 69220
   },
   "pricing_model": {
-    "recommended_fee": 432.625,
-    "value_proposition": "$433/mo generates $2163/mo savings",
+    "recommended_fee": 13844,
+    "value_proposition": "NT$13,844/mo generates NT$69,220/mo savings",
     "tier_basic": {
-      "price": 99,
+      "price": 3200,
       "features": [
         "Monitoring",
         "Alerts",
@@ -26,7 +26,7 @@
       ]
     },
     "tier_pro": {
-      "price": 299,
+      "price": 9600,
       "features": [
         "Everything Basic",
         "AI optimizer",
@@ -35,7 +35,7 @@
       ]
     },
     "tier_enterprise": {
-      "price": 499,
+      "price": 16000,
       "features": [
         "Everything Pro",
         "Multi-house",

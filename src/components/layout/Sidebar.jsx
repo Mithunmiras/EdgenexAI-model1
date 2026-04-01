@@ -1,17 +1,19 @@
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Utensils, FileText, Thermometer,
-  BarChart3, AlertTriangle, ChevronLeft, ChevronRight,
+  BarChart3, AlertTriangle, ChevronLeft, ChevronRight, Home, Waves,
 } from 'lucide-react';
 import { useState } from 'react';
 
 const links = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/', icon: Home, label: 'Home' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/feeding', icon: Utensils, label: 'Feeding' },
   { to: '/sop', icon: FileText, label: 'SOP Generator' },
   { to: '/environment', icon: Thermometer, label: 'Environment' },
   { to: '/production', icon: BarChart3, label: 'Production' },
   { to: '/alerts', icon: AlertTriangle, label: 'Alerts' },
+  { to: '/noise', icon: Waves, label: 'Noise Filter' },
 ];
 
 export default function Sidebar() {

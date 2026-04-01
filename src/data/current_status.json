@@ -1,14 +1,14 @@
 {
   "timestamp": "2024-08-29 23:45:00",
   "sensors": {
-    "temperature_C": null,
-    "humidity_pct": null,
+    "temperature_C": 21.05161277239015,
+    "humidity_pct": 82.46150454609082,
     "feed_weight_kg": 433.28216507421325,
     "water_liters": 3.5373156647054502,
     "nh3_ppm": 6.8182021487328175,
-    "co2_ppm": null,
+    "co2_ppm": 1354.084387389615,
     "light_lux": 0.1860676678552449,
-    "bird_weight_kg": null
+    "bird_weight_kg": 1.82
   },
   "derived": {
     "thi": 69.24737510517915,

@@ -4,6 +4,7 @@ import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Cartes
 import useDashboardData from '../hooks/useDashboardData';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import StatCard from '../components/cards/StatCard';
+import GeminiInsights from '../components/common/GeminiInsights';
 import { formatCurrency, formatNumber } from '../utils/formatters';
 
 function FinTooltip({ active, payload }) {
@@ -20,13 +21,11 @@ export default function Production() {
   const { data, loading } = useDashboardData();
 
   const revenueData = useMemo(function () {
-    var revenue = data?.profitability?.revenue ?? {};
-    var costs = data?.profitability?.costs ?? {};
-    var aiValue = data?.profitability?.ai_value ?? {};
+    var summary = data?.profitability?.summary ?? {};
     return [
-      { name: 'Revenue', value: revenue.total_revenue ?? 0, color: '#10B981' },
-      { name: 'Feed Cost', value: costs.total_feed_cost ?? 0, color: '#EF4444' },
-      { name: 'AI Savings', value: aiValue.total_ai_savings ?? 0, color: '#06B6D4' },
+      { name: 'Revenue', value: summary.total_revenue ?? 0, color: '#10B981' },
+      { name: 'Feed Cost', value: summary.total_feed_cost ?? 0, color: '#EF4444' },
+      { name: 'AI Savings', value: (summary.total_profit ?? 0) * 0.1, color: '#06B6D4' },
     ];
   }, [data?.profitability]);
 
@@ -36,10 +35,9 @@ export default function Production() {
   const profit = data.profitability ?? {};
   const sop = data.generated_sop ?? {};
   const farm = data.farm ?? {};
-  const revenue = profit.revenue ?? {};
-  const costs = profit.costs ?? {};
-  const aiValue = profit.ai_value ?? {};
-  const tiers = profit.pricing_model ?? {};
+  const summary = profit.summary ?? {};
+  const breakdown = profit.breakdown ?? {};
+  const periodDays = summary.period_days ?? 90;
 
   const predictedEggs = Math.round(pred.predicted_eggs_today ?? 0);
   const layingRate = farm.flock_size ? (predictedEggs / farm.flock_size * 100).toFixed(1) : '0.0';
@@ -50,15 +48,18 @@ export default function Production() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-white">🥚 Production Analytics</h1>
-        <p className="text-sm text-slate-400 mt-1">Egg production performance over {profit.period ?? '90 days'}</p>
+        <p className="text-sm text-slate-400 mt-1">Egg production performance over {periodDays} days</p>
       </div>
+
+      {/* Gemini AI Insights */}
+      <GeminiInsights page="production" data={data} />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Egg} label="Predicted Today" value={predictedEggs.toLocaleString()} color="emerald" trendLabel={layingRate + '% rate'} trend={1} delay={0} />
-        <StatCard icon={BarChart3} label="Total Eggs (Period)" value={(revenue.total_eggs ?? 0).toLocaleString()} color="blue" trendLabel={profit.period ?? '90 days'} delay={100} />
-        <StatCard icon={DollarSign} label="Total Revenue" value={formatCurrency(revenue.total_revenue)} color="cyan" trendLabel={formatCurrency((revenue.total_revenue ?? 0) / 90) + '/day'} delay={200} />
-        <StatCard icon={TrendingUp} label="AI Savings" value={formatCurrency(aiValue.total_ai_savings)} color="emerald" trendLabel={formatCurrency(aiValue.monthly_ai_value) + '/mo'} delay={300} />
+        <StatCard icon={BarChart3} label="Total Eggs (Period)" value={(data.production?.total_eggs ?? 0).toLocaleString()} color="blue" trendLabel={periodDays + ' days'} delay={100} />
+        <StatCard icon={DollarSign} label="Total Revenue" value={formatCurrency(summary.total_revenue)} color="cyan" trendLabel={formatCurrency(summary.daily_profit) + '/day'} delay={200} />
+        <StatCard icon={TrendingUp} label="Net Profit" value={formatCurrency(summary.total_profit)} color="emerald" trendLabel={'ROI: ' + (summary.roi_percentage ?? 0) + '%'} delay={300} />
       </div>
 
       {/* Expected Outcomes from SOP */}
@@ -68,11 +69,11 @@ export default function Production() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-white/5 rounded-xl">
               <p className="text-xs text-slate-400 mb-1">Expected Eggs</p>
-              <p className="text-2xl font-bold text-emerald-400">{(sop.expected_outcomes?.expected_eggs ?? 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-emerald-400">{(sop.expected_outcomes?.expected_eggs_per_day ?? sop.expected_outcomes?.expected_eggs ?? 0).toLocaleString()}</p>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-xl">
               <p className="text-xs text-slate-400 mb-1">Laying Rate</p>
-              <p className="text-2xl font-bold text-blue-400">{sop.expected_outcomes?.laying_rate_pct ?? 0}%</p>
+              <p className="text-2xl font-bold text-blue-400">{layingRate}%</p>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-xl">
               <p className="text-xs text-slate-400 mb-1">Expected FCR</p>
@@ -113,7 +114,7 @@ export default function Production() {
 
       {/* Revenue Chart */}
       <div className="glass-card p-5 animate-slide-up" style={{ animationDelay: '200ms' }}>
-        <h3 className="text-sm font-semibold text-white mb-4">{'📊 ' + (profit.period ?? '90 days') + ' Financial Overview'}</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">{'📊 ' + periodDays + ' days Financial Overview'}</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={revenueData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -131,54 +132,30 @@ export default function Production() {
 
       {/* AI Value Proposition */}
       <div className="glass-card p-5 animate-slide-up" style={{ animationDelay: '300ms' }}>
-        <h3 className="text-sm font-semibold text-white mb-4">🤖 AI Value Analysis</h3>
-        <p className="text-sm text-emerald-400 font-semibold mb-4">{tiers?.value_proposition}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {tiers?.tier_basic && (
-            <div className="p-4 bg-white/5 rounded-xl border border-slate-700/50">
-              <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Basic</p>
-              <p className="text-2xl font-bold text-white mb-3">${tiers.tier_basic.price}<span className="text-sm text-slate-400">/mo</span></p>
-              <ul className="space-y-1.5">
-                {(tiers.tier_basic?.features ?? []).map(function (f, i) {
-                  return (
-                    <li key={i} className="text-xs text-slate-300 flex items-center gap-1.5">
-                      <span className="text-emerald-400">✓</span> {f}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {tiers?.tier_pro && (
-            <div className="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/30">
-              <p className="text-xs text-emerald-400 uppercase tracking-wider mb-2">Pro (Recommended)</p>
-              <p className="text-2xl font-bold text-white mb-3">${tiers.tier_pro.price}<span className="text-sm text-slate-400">/mo</span></p>
-              <ul className="space-y-1.5">
-                {(tiers.tier_pro?.features ?? []).map(function (f, i) {
-                  return (
-                    <li key={i} className="text-xs text-slate-300 flex items-center gap-1.5">
-                      <span className="text-emerald-400">✓</span> {f}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {tiers?.tier_enterprise && (
-            <div className="p-4 bg-white/5 rounded-xl border border-slate-700/50">
-              <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Enterprise</p>
-              <p className="text-2xl font-bold text-white mb-3">${tiers.tier_enterprise.price}<span className="text-sm text-slate-400">/mo</span></p>
-              <ul className="space-y-1.5">
-                {(tiers.tier_enterprise?.features ?? []).map(function (f, i) {
-                  return (
-                    <li key={i} className="text-xs text-slate-300 flex items-center gap-1.5">
-                      <span className="text-emerald-400">✓</span> {f}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
+        <h3 className="text-sm font-semibold text-white mb-4">🤖 Profitability Breakdown</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="p-4 bg-white/5 rounded-xl">
+            <p className="text-xs text-slate-400 mb-1">Egg Revenue</p>
+            <p className="text-xl font-bold text-emerald-400">{formatCurrency(breakdown.egg_revenue)}</p>
+          </div>
+          <div className="p-4 bg-white/5 rounded-xl">
+            <p className="text-xs text-slate-400 mb-1">Feed Cost</p>
+            <p className="text-xl font-bold text-red-400">{formatCurrency(breakdown.feed_cost)}</p>
+          </div>
+          <div className="p-4 bg-white/5 rounded-xl">
+            <p className="text-xs text-slate-400 mb-1">Labor + Utilities</p>
+            <p className="text-xl font-bold text-yellow-400">{formatCurrency((breakdown.labor_cost ?? 0) + (breakdown.utilities ?? 0))}</p>
+          </div>
+          <div className="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+            <p className="text-xs text-slate-400 mb-1">Net Profit</p>
+            <p className="text-xl font-bold text-emerald-400">{formatCurrency(breakdown.net_profit)}</p>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center gap-6 text-xs text-slate-400">
+          <span>Egg Price: ${profit.pricing?.egg_price_per_unit ?? 0.12}/egg</span>
+          <span>Feed Price: ${profit.pricing?.feed_cost_per_kg ?? 0.45}/kg</span>
+          <span>Daily Profit: {formatCurrency(summary.daily_profit)}</span>
+          <span>ROI: {summary.roi_percentage ?? 0}%</span>
         </div>
       </div>
     </div>

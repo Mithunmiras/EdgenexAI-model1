@@ -1,16 +1,16 @@
 {
-  "sop_date": "2026-04-01",
-  "generated_at": "2026-04-01T07:55:07.864048",
-  "generated_by": "gemini",
+  "sop_date": "2026-04-02",
+  "generated_at": "2026-04-02T01:43:44.328792",
+  "generated_by": "groq-llama3.3-70b",
   "overall_risk_level": "Mild",
-  "executive_summary": "Today: mild heat stress (THI=69.2). Feed: 115g/bird. Expected: 4650 eggs ($558).",
+  "executive_summary": "Given the current Temperature-Humidity Index (THI) of 69.2, which indicates a mild heat stress risk, it is essential to closely monitor the flock's health and adjust ventilation systems to maintain optimal conditions. To meet the expected production of 4,650 eggs and achieve a revenue of NT$17,856, ensure that each bird receives the allocated 115g of feed and consider implementing heat mitigation strategies to prevent any potential decline in egg laying performance.",
   "priority_actions": [
     {
       "priority": 1,
       "action": "Set feed: 115g/bird (575kg total)",
       "reason": "Normal: standard schedule",
       "deadline": "Before 06:00",
-      "estimated_value_usd": 12.94
+      "estimated_value_usd": 414.0
     },
     {
       "priority": 2,
@@ -111,7 +111,7 @@
     },
     {
       "time": "18:00",
-      "check": "Final collection + mortality",
+      "check": "Final + mortality",
       "threshold": "Mortality >0.05% = alert"
     }
   ],
@@ -122,9 +122,9 @@
     "mortality_risk": "LOW"
   },
   "estimated_daily_value": {
-    "revenue_usd": 558.0,
+    "revenue_usd": 17856.0,
     "feed_cost_usd": 258.75,
-    "ai_savings_usd": 12.94,
-    "net_profit_usd": 221.62
+    "ai_savings_usd": 414.0,
+    "net_profit_usd": 17519.62
   }
 }

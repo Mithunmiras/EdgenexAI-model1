@@ -1,22 +1,53 @@
 import { useState } from 'react';
 import { Sparkles, Download, CheckCircle, AlertTriangle } from 'lucide-react';
 import useDashboardData from '../hooks/useDashboardData';
+import { useDashboardContext } from '../hooks/DashboardContext';
 import useGeminiSOP from '../hooks/useGeminiSOP';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 export default function SOPPage() {
   const { data, loading: dataLoading } = useDashboardData();
+  const { generateSOPFromBackend } = useDashboardContext();
   const { sopResult, loading: sopLoading, history, generate } = useGeminiSOP();
+  const [backendLoading, setBackendLoading] = useState(false);
+  const [backendError, setBackendError] = useState(null);
 
   if (dataLoading || !data) return <LoadingSpinner text="Loading farm data..." />;
 
   const env = data.current_status.environment;
   const sop = data.generated_sop;
 
-  const handleGenerate = () => generate(data);
+  const handleGenerate = async () => {
+    setBackendError(null);
+    // Try backend first (which calls Gemini server-side), fall back to direct Gemini
+    if (data?._source === 'backend') {
+      setBackendLoading(true);
+      try {
+        const result = await generateSOPFromBackend();
+        if (result?.sop?.sop_markdown) {
+          // Backend returned a Gemini-generated SOP
+        }
+      } catch (err) {
+        setBackendError(err.message);
+        // Fall back to client-side Gemini
+        generate(data);
+      } finally {
+        setBackendLoading(false);
+      }
+    } else {
+      generate(data);
+    }
+  };
+
+  const isLoading = sopLoading || backendLoading;
 
   // Use pre-generated SOP if no Gemini result yet
-  const displaySop = sopResult || (sop ? {
+  const displaySop = sopResult || (sop?.sop_markdown ? {
+    success: true,
+    sop: sop.sop_markdown,
+    generated_at: sop.generated_at,
+    model: sop.generated_by || 'Gemini 1.5 Flash',
+  } : sop ? {
     success: true,
     sop: formatPreGeneratedSOP(sop),
     generated_at: sop.generated_at,
@@ -47,14 +78,14 @@ export default function SOPPage() {
       <div className="flex justify-center animate-slide-up" style={{ animationDelay: '100ms' }}>
         <button
           onClick={handleGenerate}
-          disabled={sopLoading}
+          disabled={isLoading}
           className={`relative group flex items-center gap-3 px-8 py-4 rounded-2xl text-lg font-bold transition-all duration-300
-            ${sopLoading
+            ${isLoading
               ? 'bg-slate-700 text-slate-400 cursor-wait'
               : 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-105 active:scale-95'
             }`}
         >
-          {sopLoading ? (
+          {isLoading ? (
             <>
               <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
               Generating with AI...

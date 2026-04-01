@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import useDashboardData from '../hooks/useDashboardData';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import GeminiInsights from '../components/common/GeminiInsights';
 import { formatCurrency, formatNumber } from '../utils/formatters';
 
 function ChartTooltip({ active, payload }) {
@@ -35,13 +36,14 @@ export default function Feeding() {
   const pred = data.predictions || {};
   const farm = data.farm || {};
   const profit = data.profitability || {};
-  const aiValue = profit.ai_value || {};
-  const schedule = feedPlan.schedule || [];
+  const feedOpt = data.feed_optimization || {};
+  const feedSavings = feedOpt.savings || {};
+  const schedule = feedPlan.schedule || feedOpt.recommendation?.feeding_schedule || [];
   const env = data.current_status?.environment || {};
   const derived = data.current_status?.derived || {};
 
-  const feedPerBird = feedPlan.feed_per_bird_g || Math.round((pred.optimal_feed_rate || 0) * 1000);
-  const totalFeed = feedPlan.total_feed_kg || Math.round((pred.optimal_feed_rate || 0) * (farm.flock_size || 5000));
+  const feedPerBird = feedPlan.per_bird_grams || feedPlan.feed_per_bird_g || Math.round((pred.optimal_feed_rate || 0) * 1000);
+  const totalFeed = feedPlan.total_daily_feed_kg || feedPlan.total_feed_kg || Math.round((pred.optimal_feed_rate || 0) * (farm.flock_size || 5000));
   const expectedFcr = sop.expected_outcomes?.expected_fcr || '—';
   const dailyProfit = sop.estimated_daily_value?.net_profit_usd || 0;
 
@@ -51,6 +53,9 @@ export default function Feeding() {
         <h1 className="text-2xl sm:text-3xl font-bold text-white">Feeding Optimizer</h1>
         <p className="text-sm text-slate-400 mt-1">AI-calculated optimal feed for {(farm.flock_size || 5000).toLocaleString()} birds</p>
       </div>
+
+      {/* Gemini AI Insights */}
+      <GeminiInsights page="feeding" data={data} />
 
       <div className="glass-card p-6 animate-slide-up bg-gradient-to-br from-emerald-500/10 to-cyan-500/5 border-emerald-500/20">
         <h2 className="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-4">AI Feeding Recommendation</h2>
@@ -80,14 +85,14 @@ export default function Feeding() {
             <span className="text-2xl">&#128181;</span>
             <div>
               <p className="text-xs text-slate-400">Feed Savings (AI)</p>
-              <p className="text-lg font-bold text-emerald-400">{formatCurrency(aiValue.feed_savings)}</p>
+              <p className="text-lg font-bold text-emerald-400">{formatCurrency(feedSavings.daily_savings_usd)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-2xl">&#128197;</span>
             <div>
               <p className="text-xs text-slate-400">Monthly AI Value</p>
-              <p className="text-lg font-bold text-cyan-400">{formatCurrency(aiValue.monthly_ai_value)}</p>
+              <p className="text-lg font-bold text-cyan-400">{formatCurrency(feedSavings.monthly_savings_usd)}</p>
             </div>
           </div>
         </div>
@@ -115,7 +120,7 @@ export default function Feeding() {
             ))}
           </div>
           <div className="flex justify-between mt-4 pt-3 border-t border-white/10 text-sm">
-            <span className="text-slate-400">Total: <span className="text-white font-bold">{feedPlan.total_feed_kg} kg</span></span>
+            <span className="text-slate-400">Total: <span className="text-white font-bold">{totalFeed} kg</span></span>
             <span className="text-slate-400">Adjustment: <span className="text-emerald-400 font-bold">{feedPlan.adjustments || 'Normal'}</span></span>
           </div>
         </div>
@@ -158,7 +163,7 @@ export default function Feeding() {
             </div>
             <div className="p-4 bg-white/5 rounded-xl">
               <p className="text-xs text-slate-400 mb-1">Feed Savings (AI vs Standard)</p>
-              <p className="text-2xl font-bold text-cyan-400">{formatCurrency(aiValue.feed_savings)} <span className="text-sm text-slate-400">/ {profit.period || '90 days'}</span></p>
+              <p className="text-2xl font-bold text-cyan-400">{formatCurrency(feedSavings.monthly_savings_usd)} <span className="text-sm text-slate-400">/ month</span></p>
             </div>
           </div>
         </div>
